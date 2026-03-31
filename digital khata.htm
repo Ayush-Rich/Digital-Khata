@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Khata System</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+        .container {
+            background: white;
+            padding: 20px 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+        h2 { text-align: center; color: #333; }
+        .btn {
+            width: 100%; padding: 12px; margin: 10px 0;
+            border: none; border-radius: 5px;
+            font-size: 16px; cursor: pointer; color: white;
+        }
+        .btn-op { background-color: #007bff; }
+        .btn-cust { background-color: #28a745; }
+        .btn-back { background-color: #6c757d; margin-top: 20px; }
+        input {
+            width: 100%; padding: 10px; margin: 10px 0;
+            border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box;
+        }
+        .screen { display: none; }
+        .active { display: block; }
+        .record-box {
+            background: #f9f9f9; padding: 10px; margin-top: 10px;
+            border-left: 4px solid #007bff; border-radius: 4px;
+        }
+        .date-text { font-size: 12px; color: #666; }
+        .total-box {
+            background: #e9ecef; padding: 10px; text-align: center;
+            font-weight: bold; border-radius: 5px; margin-top: 15px; font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div id="homeScreen" class="screen active">
+        <h2>Digital Khata</h2>
+        <p style="text-align:center; color:#555;">Aap kaun hain?</p>
+        <button class="btn btn-op" onclick="showScreen('operatorScreen')">Main Operator Hu</button>
+        <button class="btn btn-cust" onclick="showScreen('customerScreen')">Main Customer Hu</button>
+    </div>
+
+    <div id="operatorScreen" class="screen">
+        <h2>Operator Dashboard</h2>
+        <input type="text" id="opCode" placeholder="Customer Ka Code Dalein (e.g., C01)">
+        <input type="number" id="opAmount" placeholder="Kitne Paise Liye? (₹)">
+        <button class="btn btn-op" onclick="addEntry()">Entry Add Karein</button>
+        
+        <div class="total-box" id="opTotal">Total Entry: 0</div>
+        <div id="allRecords"></div>
+        <button class="btn btn-back" onclick="showScreen('homeScreen')">Wapas Jayein</button>
+    </div>
+
+    <div id="customerScreen" class="screen">
+        <h2>Customer Panel</h2>
+        <input type="text" id="custCode" placeholder="Apna Code Dalein">
+        <button class="btn btn-cust" onclick="checkRecords()">Mera Hisaab Dikhao</button>
+        
+        <div class="total-box" id="custTotal" style="display:none;">Total Jama: ₹0</div>
+        <div id="custRecords"></div>
+        <button class="btn btn-back" onclick="showScreen('homeScreen')">Wapas Jayein</button>
+    </div>
+</div>
+
+<script>
+    // System shuru hote hi purana data load karein
+    let records = JSON.parse(localStorage.getItem('khataRecords')) || [];
+
+    // Screen change karne ka function
+    function showScreen(screenId) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(screenId).classList.add('active');
+        if(screenId === 'operatorScreen') renderAllRecords();
+    }
+
+    // Operator ke entry add karne ka function
+    function addEntry() {
+        let code = document.getElementById('opCode').value.trim().toUpperCase();
+        let amount = document.getElementById('opAmount').value;
+        
+        if(!code || !amount) {
+            alert("Kripya Code aur Amount dono dalein!");
+            return;
+        }
+
+        // Date aur Time apne aap system se lega
+        let currentDate = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
+
+        let entry = { code: code, amount: parseFloat(amount), date: currentDate };
+        records.push(entry);
+        
+        // Data ko browser mein save karein
+        localStorage.setItem('khataRecords', JSON.stringify(records));
+
+        document.getElementById('opCode').value = '';
+        document.getElementById('opAmount').value = '';
+        alert("Paisa aur Date successfully update ho gaya!");
+        renderAllRecords();
+    }
+
+    // Operator ko sabka hisaab dikhane ka function
+    function renderAllRecords() {
+        let listHtml = "<h3>Sabhi Entry:</h3>";
+        records.slice().reverse().forEach(rec => {
+            listHtml += `<div class="record-box">
+                            <strong>Code: ${rec.code}</strong> <br>
+                            Paise: ₹${rec.amount} <br>
+                            <span class="date-text">${rec.date}</span>
+                         </div>`;
+        });
+        document.getElementById('allRecords').innerHTML = listHtml;
+        document.getElementById('opTotal').innerText = `Total Entry: ${records.length}`;
+    }
+
+    // Customer ke apna hisaab check karne ka function
+    function checkRecords() {
+        let code = document.getElementById('custCode').value.trim().toUpperCase();
+        if(!code) {
+            alert("Kripya apna code dalein!");
+            return;
+        }
+
+        let myRecords = records.filter(r => r.code === code);
+        let listHtml = "";
+        let total = 0;
+
+        if(myRecords.length === 0) {
+            listHtml = "<p style='color:red;'>Is code par koi data nahi mila.</p>";
+            document.getElementById('custTotal').style.display = 'none';
+        } else {
+            myRecords.slice().reverse().forEach(rec => {
+                total += rec.amount;
+                listHtml += `<div class="record-box">
+                                Jama Kiye: <strong>₹${rec.amount}</strong> <br>
+                                <span class="date-text">${rec.date}</span>
+                             </div>`;
+            });
+            document.getElementById('custTotal').style.display = 'block';
+            document.getElementById('custTotal').innerText = `Total Jama: ₹${total}`;
+        }
+        document.getElementById('custRecords').innerHTML = listHtml;
+    }
+</script>
+
+</body>
+</html>
