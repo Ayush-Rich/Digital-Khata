@@ -3,174 +3,256 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Digital Khata System (Live)</title>
+    <title>Digital Khata Dashboard (Secure)</title>
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f4f7f6;
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
+        :root {
+            --primary-blue: #0A66C2;
+            --primary-green: #2ECC71;
+            --bg-grey: #F4F7F6;
+            --text-dark: #333;
+            --text-light: #555;
+            --card-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
-        .container {
-            background: white;
-            padding: 20px 30px;
-            border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            width: 100%;
-            max-width: 400px;
-        }
-        h2 { text-align: center; color: #333; }
-        .btn {
-            width: 100%; padding: 12px; margin: 10px 0;
-            border: none; border-radius: 5px;
-            font-size: 16px; cursor: pointer; color: white; transition: 0.3s;
-        }
-        .btn-op { background-color: #007bff; }
-        .btn-cust { background-color: #28a745; }
-        .btn-back { background-color: #6c757d; margin-top: 20px; }
-        .btn:disabled { background-color: #cccccc; cursor: not-allowed; }
-        input {
-            width: 100%; padding: 10px; margin: 10px 0;
-            border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box;
-        }
+
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg-grey); margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; }
+        
+        header { background-color: white; width: 100%; padding: 20px 0; display: flex; justify-content: center; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        .logo-box { display: flex; align-items: center; gap: 15px; }
+        .app-logo { width: 50px; height: 50px; object-fit: contain; }
+        .header-title { font-size: 26px; font-weight: bold; color: var(--primary-blue); margin: 0; }
+
+        .dashboard-container { width: 100%; max-width: 480px; padding: 0 20px 40px 20px; box-sizing: border-box; }
         .screen { display: none; }
         .active { display: block; }
-        .record-box {
-            background: #f9f9f9; padding: 10px; margin-top: 10px;
-            border-left: 4px solid #007bff; border-radius: 4px;
-        }
-        .date-text { font-size: 12px; color: #666; }
-        .total-box {
-            background: #e9ecef; padding: 10px; text-align: center;
-            font-weight: bold; border-radius: 5px; margin-top: 15px; font-size: 18px;
-        }
+        .dashboard-card { background: white; padding: 25px; border-radius: 15px; box-shadow: var(--card-shadow); }
+        h2 { text-align: center; color: var(--text-dark); margin-top: 0; margin-bottom: 20px; font-size: 22px; }
+        
+        .btn { width: 100%; padding: 14px; margin: 10px 0; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; color: white; transition: 0.3s; }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
+        .btn-op { background: linear-gradient(135deg, var(--primary-blue), #1E88E5); }
+        .btn-cust { background: linear-gradient(135deg, var(--primary-green), #27AE60); }
+        .btn-outline { background: transparent; border: 2px solid var(--primary-blue); color: var(--primary-blue); }
+        .btn-back { background: #6c757d; margin-top: 15px; padding: 10px; font-size: 14px; }
+        .btn:disabled { background: #cccccc; cursor: not-allowed; transform: none; box-shadow: none; border:none; color:white; }
+
+        input, select { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 15px; background-color: #fbfbfb; }
+        input:focus { border-color: var(--primary-blue); outline: none; background-color: white; }
+
+        .entry-type-selector { display: flex; gap: 10px; margin: 5px 0 15px 0; }
+        .type-option { flex: 1; text-align: center; }
+        .type-option input[type="radio"] { display: none; }
+        .type-option label { display: block; padding: 10px; border: 2px solid #ddd; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 14px; color: var(--text-light); transition: 0.3s; }
+        #typeIn:checked + label { background-color: #E9FBF3; border-color: var(--primary-green); color: var(--primary-green); }
+        #typeOut:checked + label { background-color: #FDEDED; border-color: #E74C3C; color: #E74C3C; }
+
+        .record-box { background: #f9f9f9; padding: 15px; margin-top: 15px; border-radius: 10px; border-left: 5px solid #ddd; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .type-credit { border-left-color: var(--primary-green); }
+        .type-debit { border-left-color: #E74C3C; }
+        .record-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 5px; }
+        .record-code { font-weight: bold; color: var(--text-dark); font-size: 14px; }
+        .record-amount { font-size: 18px; font-weight: bold; }
+        .amt-credit { color: var(--primary-green); }
+        .amt-debit { color: #E74C3C; }
+        .date-text { font-size: 12px; color: #888; margin-top: 5px; }
+        
+        .total-box { background: linear-gradient(135deg, #0A66C210, #2ECC7110); padding: 15px; text-align: center; font-weight: bold; border-radius: 10px; margin-top: 20px; font-size: 18px; color: var(--primary-blue); border: 1px dashed var(--primary-blue); }
+        .total-box span { font-size: 24px; color: var(--primary-green); }
+        .welcome-text { text-align: center; font-size: 18px; font-weight: bold; color: var(--text-dark); margin-bottom: 10px; }
+        
+        .op-menu { display: flex; gap: 10px; margin-bottom: 15px; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div id="homeScreen" class="screen active">
-        <h2>Digital Khata ☁️</h2>
-        <p style="text-align:center; color:#555;">Aap kaun hain?</p>
-        <button class="btn btn-op" onclick="showScreen('operatorScreen')">Main Operator Hu</button>
-        <button class="btn btn-cust" onclick="showScreen('customerScreen')">Main Customer Hu</button>
+<header>
+    <div class="logo-box">
+        <h1 class="header-title">Digital Khata</h1>
+    </div>
+</header>
+
+<div class="dashboard-container">
+    
+    <div id="homeScreen" class="screen active dashboard-card">
+        <h2>Aap kaun hain?</h2>
+        <button class="btn btn-op" onclick="showScreen('operatorScreen')">Main Operator Hu 🛠️</button>
+        <button class="btn btn-cust" onclick="showScreen('customerLoginScreen')">Main Customer Hu 👤</button>
     </div>
 
-    <div id="operatorScreen" class="screen">
-        <h2>Operator Dashboard</h2>
-        <input type="text" id="opCode" placeholder="Customer Ka Code Dalein (e.g., C01)">
-        <input type="number" id="opAmount" placeholder="Kitne Paise Liye? (₹)">
-        <button class="btn btn-op" id="opBtn" onclick="addEntry()">Entry Add Karein</button>
-        
+    <div id="operatorScreen" class="screen dashboard-card">
+        <h2>Operator Login</h2>
+        <input type="password" id="opPassword" placeholder="Aapka Master Password">
+        <button class="btn btn-op" id="opLoginBtn" onclick="checkOperatorAccess()">Dashboard Kholaein</button>
         <button class="btn btn-back" onclick="showScreen('homeScreen')">Wapas Jayein</button>
     </div>
 
-    <div id="customerScreen" class="screen">
-        <h2>Customer Panel</h2>
-        <input type="text" id="custCode" placeholder="Apna Code Dalein">
-        <button class="btn btn-cust" id="custBtn" onclick="checkRecords()">Mera Hisaab Dikhao</button>
-        
-        <div class="total-box" id="custTotal" style="display:none;">Total Jama: ₹0</div>
+    <div id="operatorDashboard" class="screen dashboard-card">
+        <h2>Operator Panel</h2>
+        <div class="op-menu">
+            <button class="btn btn-op" style="margin:0;" onclick="showOpSection('entrySection')">Paisa Entry</button>
+            <button class="btn btn-outline" style="margin:0;" onclick="showOpSection('newCustSection')">+ Naya Customer</button>
+        </div>
+
+        <div id="entrySection">
+            <input type="text" id="opCode" placeholder="Customer Code (e.g., C01)">
+            <input type="number" id="opAmount" placeholder="Amount (₹)">
+            <div class="entry-type-selector">
+                <div class="type-option"><input type="radio" name="entryType" id="typeIn" value="Paisa Aaya" checked><label for="typeIn">✅ Paisa Aaya</label></div>
+                <div class="type-option"><input type="radio" name="entryType" id="typeOut" value="Paisa Gaya"><label for="typeOut">⛔ Paisa Gaya</label></div>
+            </div>
+            <button class="btn btn-op" id="opAddBtn" onclick="addEntry()">Entry Save Karein 💾</button>
+        </div>
+
+        <div id="newCustSection" style="display:none; padding-top:10px; border-top: 1px solid #ddd;">
+            <input type="text" id="newCustCode" placeholder="Naya Code Banayein (e.g., C02)">
+            <input type="text" id="newCustName" placeholder="Customer Ka Pura Naam">
+            <input type="text" id="newCustPass" placeholder="Unke Liye Password Banayein">
+            <button class="btn btn-outline" id="opCreateBtn" onclick="createCustomer()">Customer Banayein 👤</button>
+        </div>
+
+        <button class="btn btn-back" onclick="showScreen('homeScreen')">Logout</button>
+    </div>
+
+    <div id="customerLoginScreen" class="screen dashboard-card">
+        <h2>Customer Login</h2>
+        <input type="text" id="loginCode" placeholder="Apna Code Dalein">
+        <input type="password" id="loginPass" placeholder="Apna Password Dalein">
+        <button class="btn btn-cust" id="custLoginBtn" onclick="customerLogin()">Login Karein 🔑</button>
+        <button class="btn btn-back" onclick="showScreen('homeScreen')">Wapas Jayein</button>
+    </div>
+
+    <div id="customerDashboard" class="screen dashboard-card">
+        <div class="welcome-text" id="custWelcomeMsg">Hello, Customer</div>
+        <div class="total-box" id="custTotal">Total Balance: <br><span id="custBalanceAmt">₹0</span></div>
         <div id="custRecords"></div>
-        <button class="btn btn-back" onclick="showScreen('homeScreen')">Wapas Jayein</button>
+        <button class="btn btn-back" onclick="showScreen('homeScreen')">Logout</button>
     </div>
+
 </div>
 
 <script>
-    // 👇👇 YAHAN APNA GOOGLE APP SCRIPT WALA LINK PASTE KAREIN 👇👇
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyAzjUpK7RAaMXqgvKt35d_d6M3CSTVtzsGWHSqAPit8GUaLJaG_oPDcLZapmaoaqR1/exec";
-    // 👆👆 DOUBLE QUOTES KE ANDAR HI LINK RAKHEIN 👆👆
+    // 👇👇 YAHAN APNA NAYA LIVE LINK PASTE KAREIN 👇👇
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx521ZEDNbA1q664frFq1RKks9_JtKXHOOqe2fvm3JyVhEQJXWeXyisVggpKY44Y11U/exec";
+    
+    const OP_PASSWORD_SECRET = "admin123";
 
     function showScreen(screenId) {
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
         document.getElementById(screenId).classList.add('active');
-        // Clear old records when switching screens
+        // Clear fields safely
+        ['opPassword', 'opCode', 'opAmount', 'newCustCode', 'newCustName', 'newCustPass', 'loginCode', 'loginPass'].forEach(id => {
+            if(document.getElementById(id)) document.getElementById(id).value = '';
+        });
         document.getElementById('custRecords').innerHTML = '';
-        document.getElementById('custTotal').style.display = 'none';
-        document.getElementById('custCode').value = '';
     }
 
-    // Operator - Google Sheet me data bhejna
-    function addEntry() {
-        let code = document.getElementById('opCode').value.trim().toUpperCase();
-        let amount = document.getElementById('opAmount').value;
-        
-        if(!code || !amount) {
-            alert("Kripya Code aur Amount dono dalein!");
-            return;
-        }
+    function showOpSection(sectionId) {
+        document.getElementById('entrySection').style.display = 'none';
+        document.getElementById('newCustSection').style.display = 'none';
+        document.getElementById(sectionId).style.display = 'block';
+    }
 
-        let currentDate = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
-        let entry = { code: code, amount: parseFloat(amount), date: currentDate };
-        
-        let btn = document.getElementById('opBtn');
-        btn.innerText = "Internet par save ho raha hai... ⏳";
-        btn.disabled = true;
+    function checkOperatorAccess() {
+        if (document.getElementById('opPassword').value.trim() === OP_PASSWORD_SECRET) {
+            showScreen('operatorDashboard');
+        } else {
+            alert("Galat Password!");
+        }
+    }
+
+    // 👤 CREATE NEW CUSTOMER
+    function createCustomer() {
+        let code = document.getElementById('newCustCode').value.trim();
+        let name = document.getElementById('newCustName').value.trim();
+        let pass = document.getElementById('newCustPass').value.trim();
+
+        if(!code || !name || !pass) return alert("Sabhi details bharna zaroori hai!");
+
+        let btn = document.getElementById('opCreateBtn');
+        btn.innerText = "Ban raha hai... ⏳"; btn.disabled = true;
 
         fetch(SCRIPT_URL, {
-            method: 'POST',
-            mode: 'no-cors',
-            body: JSON.stringify(entry),
-            headers: {
-                'Content-Type': 'application/json'
-            }
+            method: 'POST', mode: 'no-cors',
+            body: JSON.stringify({ action: "addCustomer", code: code, name: name, password: pass }),
+            headers: { 'Content-Type': 'application/json' }
         }).then(() => {
-            alert("✅ Entry Google Sheet mein safaltapurvak add ho gayi!");
-            document.getElementById('opCode').value = '';
-            document.getElementById('opAmount').value = '';
-            btn.innerText = "Entry Add Karein";
-            btn.disabled = false;
-        }).catch(error => {
-            alert("❌ Kuch error aayi, apna internet check karein.");
-            btn.innerText = "Entry Add Karein";
-            btn.disabled = false;
-        });
+            alert("✅ Naya Customer Successfully Ban Gaya!");
+            ['newCustCode', 'newCustName', 'newCustPass'].forEach(id => document.getElementById(id).value = '');
+            btn.innerText = "Customer Banayein 👤"; btn.disabled = false;
+        }).catch(() => { alert("❌ Error!"); btn.disabled = false; btn.innerText = "Customer Banayein 👤"; });
     }
 
-    // Customer - Google Sheet se apna data nikalna
-    function checkRecords() {
-        let code = document.getElementById('custCode').value.trim().toUpperCase();
-        if(!code) {
-            alert("Kripya apna code dalein!");
-            return;
-        }
+    // 💾 ADD TRANSACTION ENTRY
+    function addEntry() {
+        let code = document.getElementById('opCode').value.trim();
+        let amount = document.getElementById('opAmount').value;
+        let type = document.querySelector('input[name="entryType"]:checked').value;
+        
+        if(!code || !amount) return alert("Code aur Amount dalein!");
 
-        let btn = document.getElementById('custBtn');
-        btn.innerText = "Khata check kar rahe hain... ⏳";
-        btn.disabled = true;
+        let currentDate = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
+        let btn = document.getElementById('opAddBtn');
+        btn.innerText = "Save ho raha hai... ⏳"; btn.disabled = true;
 
-        fetch(SCRIPT_URL + "?code=" + code)
-        .then(response => response.json())
+        fetch(SCRIPT_URL, {
+            method: 'POST', mode: 'no-cors',
+            body: JSON.stringify({ action: "addEntry", code: code, amount: amount, date: currentDate, type: type }),
+            headers: { 'Content-Type': 'application/json' }
+        }).then(() => {
+            alert("✅ Entry Sheet mein add ho gayi!");
+            document.getElementById('opCode').value = ''; document.getElementById('opAmount').value = '';
+            btn.innerText = "Entry Save Karein 💾"; btn.disabled = false;
+        }).catch(() => { alert("❌ Error!"); btn.disabled = false; btn.innerText = "Entry Save Karein 💾"; });
+    }
+
+    // 🔑 CUSTOMER LOGIN & FETCH DATA
+    function customerLogin() {
+        let code = document.getElementById('loginCode').value.trim();
+        let pass = document.getElementById('loginPass').value.trim();
+        if(!code || !pass) return alert("Code aur Password dono dalein!");
+
+        let btn = document.getElementById('custLoginBtn');
+        btn.innerText = "Checking... ⏳"; btn.disabled = true;
+
+        fetch(`${SCRIPT_URL}?action=login&code=${code}&pass=${pass}`)
+        .then(res => res.json())
         .then(data => {
-            let listHtml = "";
-            let total = 0;
-
-            if(data.length === 0) {
-                listHtml = "<p style='color:red; text-align:center;'>Is code par koi entry nahi mili.</p>";
-                document.getElementById('custTotal').style.display = 'none';
-            } else {
-                // Latest entry sabse upar dikhane ke liye reverse kiya hai
-                data.slice().reverse().forEach(rec => {
-                    total += parseFloat(rec.amount);
-                    listHtml += `<div class="record-box">
-                                    Jama Kiye: <strong style="color:green; font-size:16px;">₹${rec.amount}</strong> <br>
-                                    <span class="date-text">📅 ${rec.date}</span>
-                                 </div>`;
-                });
-                document.getElementById('custTotal').style.display = 'block';
-                document.getElementById('custTotal').innerText = `Total Jama: ₹${total}`;
+            if(!data.success) {
+                alert(data.message);
+                btn.innerText = "Login Karein 🔑"; btn.disabled = false;
+                return;
             }
+
+            document.getElementById('custWelcomeMsg').innerText = `Hello, ${data.name}`;
+            let listHtml = ""; let total = 0;
+
+            if(data.records.length === 0) {
+                listHtml = "<p style='text-align:center;'>Abhi koi entry nahi hai.</p>";
+            } else {
+                data.records.slice().reverse().forEach(rec => {
+                    let recAmount = parseFloat(rec.amount);
+                    let isDebit = rec.type === "Paisa Gaya";
+                    total += isDebit ? -recAmount : recAmount;
+                    
+                    listHtml += `
+                        <div class="record-box ${isDebit ? 'type-debit' : 'type-credit'}">
+                            <div class="record-header">
+                                <div class="record-code" style="color:#666">${rec.type}</div>
+                                <div class="record-amount ${isDebit ? 'amt-debit' : 'amt-credit'}">₹${recAmount}</div>
+                            </div>
+                            <div class="date-text">📅 ${rec.date}</div>
+                        </div>`;
+                });
+            }
+            
+            let balSpan = document.getElementById('custBalanceAmt');
+            balSpan.innerText = `₹${total}`;
+            balSpan.style.color = total < 0 ? "#E74C3C" : "var(--primary-green)";
+            
             document.getElementById('custRecords').innerHTML = listHtml;
-            btn.innerText = "Mera Hisaab Dikhao";
-            btn.disabled = false;
+            showScreen('customerDashboard');
+            btn.innerText = "Login Karein 🔑"; btn.disabled = false;
         })
-        .catch(error => {
-            alert("❌ Database se connect nahi ho paya. Link ya Internet check karein.");
-            btn.innerText = "Mera Hisaab Dikhao";
-            btn.disabled = false;
-        });
+        .catch(() => { alert("❌ Internet ya Link Error!"); btn.innerText = "Login Karein 🔑"; btn.disabled = false; });
     }
 </script>
 
